@@ -8,6 +8,7 @@ interface BrewLogProps {
 }
 
 function getLineColor(line: string): string {
+  if (!line) return '';
   if (line.includes('ERROR') || line.includes('418')) return 'brew-log__line--error';
   if (line.includes('Confirmed') || line.includes('terminated')) return 'brew-log__line--warning';
   return '';
@@ -23,12 +24,15 @@ export function BrewLog({ entries }: BrewLogProps) {
     }
   }, [entries.length]);
 
-  if (entries.length === 0) return null;
+  /* Filter out any undefined/null entries to prevent runtime crashes */
+  const safeEntries = entries.filter(Boolean);
+
+  if (safeEntries.length === 0) return null;
 
   return (
     <div className="brew-log" role="log" aria-label="Brew process log" ref={scrollRef}>
       <AnimatePresence>
-        {entries.map((line, i) => (
+        {safeEntries.map((line, i) => (
           <motion.div
             key={i}
             className={`brew-log__line ${getLineColor(line)}`}
