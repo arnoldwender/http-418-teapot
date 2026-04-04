@@ -1,3 +1,7 @@
+import { motion } from 'framer-motion';
+
+/* === Coffee Input — request field with submit button === */
+
 interface CoffeeInputProps {
   value: string;
   onChange: (val: string) => void;
@@ -25,14 +29,19 @@ export function CoffeeInput({ value, onChange, onSubmit, processing }: CoffeeInp
             spellCheck={false}
           />
         </div>
-        <button
+        <motion.button
           onClick={onSubmit}
           disabled={processing}
           className="coffee-input__btn"
           aria-busy={processing}
+          whileHover={{ scale: processing ? 1 : 1.03 }}
+          whileTap={{ scale: processing ? 1 : 0.97 }}
         >
           {processing ? 'PROCESSING...' : 'BREW COFFEE'}
-        </button>
+        </motion.button>
+      </div>
+      <div className="coffee-input__hints">
+        <span className="coffee-input__hint">TIP: try "espresso" or "sudo brew coffee"</span>
       </div>
     </div>
   );
