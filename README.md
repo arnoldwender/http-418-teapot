@@ -2,7 +2,7 @@
 
 **The ultimate HTTP 418 "I'm a teapot" experience — brew tea, refuse coffee, honor RFC 2324.**
 
-Built by [Arnold Wender](https://github.com/arnoldwender)
+Built by [Arnold Wender](https://arnoldwender.com)
 
 [:rocket: Live Demo](https://http-418-teapot.netlify.app)
 
