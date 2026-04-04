@@ -50,10 +50,14 @@ export function useBrewProcess() {
     setIsEspressoRage(false);
     setScreenShake(false);
 
+    /* Clear any lingering interval from a previous request */
+    if (intervalRef.current) clearInterval(intervalRef.current);
+
     let i = 0;
     intervalRef.current = setInterval(() => {
       if (i < BREW_LOG.length) {
-        setLog((prev) => [...prev, BREW_LOG[i]]);
+        const entry = BREW_LOG[i];
+        if (entry != null) setLog((prev) => [...prev, entry]);
         i++;
       } else {
         if (intervalRef.current) clearInterval(intervalRef.current);
