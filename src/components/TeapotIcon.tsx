@@ -1,22 +1,19 @@
+import { AnimatedTeapot } from './AnimatedTeapot';
+import type { TeapotReaction } from '../hooks/useBrewProcess';
+
+/* === Teapot Icon — wraps AnimatedTeapot with backwards-compatible props === */
+
 interface TeapotIconProps {
   steaming: boolean;
+  reaction: TeapotReaction;
+  color: string;
+  pattern: string;
 }
 
-export function TeapotIcon({ steaming }: TeapotIconProps) {
+export function TeapotIcon({ reaction, color, pattern }: TeapotIconProps) {
   return (
-    <div
-      className={`teapot-icon ${steaming ? 'teapot-icon--steaming' : ''}`}
-    >
-      <span className="teapot-icon__emoji" role="img" aria-label="Teapot">
-        🫖
-      </span>
-      {steaming && (
-        <div className="teapot-icon__steam">
-          <span className="teapot-icon__steam-puff teapot-icon__steam-puff--1">~</span>
-          <span className="teapot-icon__steam-puff teapot-icon__steam-puff--2">~</span>
-          <span className="teapot-icon__steam-puff teapot-icon__steam-puff--3">~</span>
-        </div>
-      )}
+    <div className="teapot-icon">
+      <AnimatedTeapot reaction={reaction} color={color} pattern={pattern} />
     </div>
   );
 }

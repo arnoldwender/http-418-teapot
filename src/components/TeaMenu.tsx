@@ -1,4 +1,7 @@
+import { motion } from 'framer-motion';
 import type { TeaItem } from '../data/teapot-content';
+
+/* === Tea Menu — grid of available/forbidden beverages === */
 
 interface TeaMenuProps {
   items: TeaItem[];
@@ -18,11 +21,13 @@ export function TeaMenu({ items, selectedTea, brewingTea, onBrew }: TeaMenuProps
           const forbidden = item.status === '418 FORBIDDEN';
           const isBrewing = brewingTea && selectedTea?.name === item.name && !forbidden;
           return (
-            <button
+            <motion.button
               key={i}
               onClick={() => onBrew(item)}
               className={`tea-menu__item ${forbidden ? 'tea-menu__item--forbidden' : ''} ${isBrewing ? 'tea-menu__item--brewing' : ''}`}
               aria-label={`${item.name} - ${item.status}`}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
             >
               <div className="tea-menu__item-row">
                 <span className="tea-menu__item-name">
@@ -30,17 +35,23 @@ export function TeaMenu({ items, selectedTea, brewingTea, onBrew }: TeaMenuProps
                 </span>
                 <span className="tea-menu__item-temp">{item.temp}</span>
               </div>
+              <div className="tea-menu__item-desc">{item.description}</div>
               <div className="tea-menu__item-status">
                 {isBrewing ? 'BREWING... \uD83E\uDED6' : item.status}
               </div>
-            </button>
+            </motion.button>
           );
         })}
       </div>
       {brewingTea && selectedTea && selectedTea.status !== '418 FORBIDDEN' && (
-        <div className="tea-menu__brewing-msg" role="status">
+        <motion.div
+          className="tea-menu__brewing-msg"
+          role="status"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
           BREWING {selectedTea.name.toUpperCase()} AT {selectedTea.temp}... BECAUSE I CAN. I AM A TEAPOT.
-        </div>
+        </motion.div>
       )}
     </section>
   );
