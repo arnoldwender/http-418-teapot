@@ -1,0 +1,48 @@
+# HTTP 418 — I'm A Teapot
+
+> A retro CRT terminal web app that refuses coffee requests with HTTP 418 responses per RFC 2324.
+
+## Summary
+
+This is a single-page React application built with TypeScript and Vite. It simulates an HTTP server implementing the Hyper Text Coffee Pot Control Protocol (RFC 2324). Users submit coffee brew requests through a terminal-style interface and receive 418 "I'm a teapot" rejections with themed refusal messages. A tea menu offers available teas for brewing and marks coffees as forbidden.
+
+The UI features a CRT terminal aesthetic with amber-on-black colors, scanline overlays, glitch text effects, and animated steam.
+
+## Tech Stack
+
+- React 18 (functional components, hooks)
+- TypeScript 5 (strict mode)
+- Vite 5 (build tool, dev server, HMR)
+- Tailwind CSS 3 (utility-first styling)
+- ESLint 9 (TypeScript + React plugins)
+
+## Structure
+
+- src/App.tsx: Root component with CRT overlay and layout
+- src/main.tsx: React DOM entry point
+- src/index.css: Theme variables, keyframe animations, CRT effects
+- src/components/CoffeeInput.tsx: Terminal prompt input for brew requests
+- src/components/BrewLog.tsx: Sequential color-coded log display
+- src/components/ResponseCard.tsx: HTTP 418 response with headers
+- src/components/TeaMenu.tsx: Beverage selection grid
+- src/components/TeapotIcon.tsx: Teapot emoji with steam animation
+- src/data/teapot-content.ts: Refusal messages, brew logs, tea menu data
+- src/hooks/useBrewProcess.ts: State machine for request rejection flow
+- src/hooks/useGlitchTitle.ts: Periodic title text corruption
+
+## Key Details
+
+- Fully client-side, no backend or API calls
+- No routing (single page)
+- No external state management library
+- Accessibility: ARIA roles, labels, and live regions
+- @supabase/supabase-js is a dependency but not used (from template)
+- lucide-react is a dependency but not currently imported
+
+## Commands
+
+- npm run dev: Start development server
+- npm run build: Production build to dist/
+- npm run preview: Preview production build
+- npm run lint: Run ESLint
+- npm run typecheck: TypeScript type-check
