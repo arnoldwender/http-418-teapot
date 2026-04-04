@@ -1,0 +1,21 @@
+# HTTP 418 — I'm a Teapot
+
+> The ultimate HTTP 418 "I'm a teapot" experience — brew tea, refuse coffee, honor RFC 2324.
+
+## Tech Stack
+- React 18, TypeScript, Vite, Tailwind CSS
+- Framer Motion, canvas-confetti, html2canvas, Lucide React, Web Audio API
+
+## Key Files
+- src/App.tsx — main application entry
+- src/components/ — UI components (teapot, brew timer, receipt, customizer, achievements)
+- src/hooks/ — custom React hooks
+- src/data/ — tea menu data, achievement definitions
+
+## Features
+- Animated SVG teapot, HTTP status tea menu, brew timer, thermal receipt
+- Teapot customizer, 10 achievements, sound effects, coffee refusal (RFC 2324)
+
+## URLs
+- Live: https://http-418-teapot.netlify.app
+- Repo: https://github.com/arnoldwender/http-418-teapot
