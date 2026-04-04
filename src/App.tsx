@@ -308,7 +308,7 @@ export default function App() {
         <footer className="teapot-footer">
           <div>IN MEMORY OF RFC 2324 (APRIL 1, 1998) — THE GREATEST APRIL FOOLS JOKE IN INTERNET HISTORY</div>
           <div>LARRY MASINTER: THANK YOU FOR THIS GIFT TO HUMANITY</div>
-          <div className="teapot-footer__credit">BUILT BY WENDER MEDIA — WE REFUSE COFFEE TOO</div>
+          <div className="teapot-footer__credit">BUILT BY ARNOLD WENDER — WE REFUSE COFFEE TOO</div>
         </footer>
       </main>
     </div>
