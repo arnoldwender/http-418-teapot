@@ -19,6 +19,10 @@ Built by [Arnold Wender](https://arnoldwender.com)
 - Sound effects for brewing, pouring, and sipping
 - Confetti celebrations when you unlock achievements
 - Coffee requests are firmly and politely refused (as per RFC 2324)
+- Postman-style Request Panel — send BREW and STEEP requests with custom headers and tea parameters
+- RFC 2324 Compliance Dashboard — full compliance report with an A+ grade (naturally)
+- Fake Changelog — version history of increasingly elaborate tea-related protocol updates
+- Pro Tier ($418/month) — premium brewing features at the only appropriate price point
 
 ## Tech Stack
 

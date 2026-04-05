@@ -9,12 +9,20 @@
 ## Key Files
 - src/App.tsx — main application entry
 - src/components/ — UI components (teapot, brew timer, receipt, customizer, achievements)
+- src/components/PostmanPanel.tsx — Postman-style request panel (BREW/STEEP methods)
+- src/components/ComplianceDashboard.tsx — RFC 2324 compliance dashboard
+- src/components/Changelog.tsx — Fake changelog
+- src/components/CliMode.tsx — CLI mode interface
 - src/hooks/ — custom React hooks
 - src/data/ — tea menu data, achievement definitions
 
 ## Features
 - Animated SVG teapot, HTTP status tea menu, brew timer, thermal receipt
 - Teapot customizer, 10 achievements, sound effects, coffee refusal (RFC 2324)
+- Postman-style Request Panel (BREW/STEEP methods)
+- RFC 2324 Compliance Dashboard (A+ grade)
+- Fake Changelog
+- Pro Tier ($418/month)
 
 ## URLs
 - Live: https://http-418-teapot.netlify.app
