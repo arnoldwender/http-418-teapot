@@ -21,6 +21,9 @@ import { GlobalCounter } from './components/GlobalCounter';
 import { AchievementToast } from './components/AchievementToast';
 import { AchievementPanel } from './components/AchievementPanel';
 import { ShareCard } from './components/ShareCard';
+import { PostmanPanel } from './components/PostmanPanel';
+import { ComplianceDashboard } from './components/ComplianceDashboard';
+import { Changelog } from './components/Changelog';
 
 /* === Main App — orchestrates all features and wires interactions === */
 
@@ -291,6 +294,18 @@ export default function App() {
             onCustomized={handleCustomized}
           />
         </div>
+
+        {/* Postman-style HTCPCP request panel */}
+        <PostmanPanel
+          onSendRequest={handleSubmit}
+          processing={phase === 'processing'}
+        />
+
+        {/* RFC 2324 compliance grading dashboard */}
+        <ComplianceDashboard />
+
+        {/* Fake changelog + Pro tier */}
+        <Changelog />
 
         {/* Achievements */}
         <AchievementPanel unlocked={unlocked} />
