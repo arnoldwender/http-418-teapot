@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { TEA_MENU } from './data/teapot-content';
 import type { HttpStatusTea } from './data/teapot-content';
 import { useGlitchTitle } from './hooks/useGlitchTitle';
@@ -251,19 +251,15 @@ export default function App() {
         {/* Brew log */}
         <BrewLog entries={log} />
 
-        {/* Rejection response */}
-        <AnimatePresence>
-          {phase === 'rejected' && <ResponseCard refusal={refusal} isEspressoRage={isEspressoRage} />}
-        </AnimatePresence>
+        {/* Rejection response — no AnimatePresence to prevent black screen on phase transitions */}
+        {phase === 'rejected' && <ResponseCard refusal={refusal} isEspressoRage={isEspressoRage} />}
 
         {/* Brew timer */}
-        <AnimatePresence>
-          <BrewTimer
-            progress={brewProgress}
-            teaName={selectedTea?.name || ''}
-            isActive={brewingTea}
-          />
-        </AnimatePresence>
+        <BrewTimer
+          progress={brewProgress}
+          teaName={selectedTea?.name || ''}
+          isActive={brewingTea}
+        />
 
         {/* Classic tea menu */}
         <TeaMenu
