@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HTTP 418 — Cover Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 24px;
+    gap: 24px;
+  }
+
+  /* ── Cover: exactly 1000×420 ─────────────────────────── */
+  #cover {
+    width: 1000px;
+    height: 420px;
+    background: #0d0608;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+    flex-shrink: 0;
+  }
+
+  /* Noise overlay */
+  #cover::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.35; z-index: 1; pointer-events: none;
+  }
+
+  /* ── Animated CSS steam (preview only, hidden at export) */
+  .steam-animated {
+    position: absolute;
+    right: 222px; top: 52px;
+    width: 90px; height: 170px;
+    z-index: 10;
+  }
+  .steam {
+    position: absolute; bottom: 0;
+    border-radius: 50%;
+    animation: rise 2.8s ease-in infinite;
+    filter: blur(5px);
+  }
+  .s1 { left: 4px;  width: 10px; height: 55px; animation-delay: 0s;   animation-duration: 2.6s; }
+  .s2 { left: 30px; width: 14px; height: 65px; animation-delay: 0.7s; animation-duration: 3.0s; }
+  .s3 { left: 56px; width: 9px;  height: 50px; animation-delay: 1.4s; animation-duration: 2.4s; }
+  .s4 { left: 18px; width: 11px; height: 60px; animation-delay: 0.3s; animation-duration: 3.3s; }
+  .s5 { left: 44px; width: 13px; height: 58px; animation-delay: 1.1s; animation-duration: 2.8s; }
+
+  @keyframes rise {
+    0%   { transform: translateY(0) scaleX(1);   opacity: 0;   background: rgba(200,100,20,0); }
+    10%  { opacity: 0.7; background: rgba(220,130,30,0.6); }
+    40%  { transform: translateY(-65px) scaleX(1.5); opacity: 0.5; background: rgba(240,200,120,0.4); }
+    70%  { transform: translateY(-120px) scaleX(2.2); opacity: 0.3; background: rgba(242,234,216,0.3); }
+    100% { transform: translateY(-165px) scaleX(3.0); opacity: 0;   background: rgba(242,234,216,0); }
+  }
+
+  /* ── Left text content ────────────────────────────────── */
+  .content {
+    position: absolute;
+    left: 52px; top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .label {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: rgba(200,80,10,0.9);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .label::before {
+    content: ''; display: block;
+    width: 24px; height: 2px;
+    background: rgba(200,80,10,0.8); border-radius: 2px;
+  }
+
+  /* FIX 1: "418" as inline SVG — no -webkit artifact */
+  .code-svg { display: block; margin-bottom: 4px; overflow: visible; }
+
+  .tagline {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px; font-weight: 700;
+    color: #f2ead8;
+    letter-spacing: -0.5px;
+    margin-bottom: 20px; opacity: 0.92;
+  }
+  .tagline span { color: rgba(200,100,30,0.85); font-weight: 400; }
+
+  .pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; color: rgba(242,234,216,0.6);
+    background: rgba(242,234,216,0.07);
+    border: 1px solid rgba(242,234,216,0.12);
+    padding: 4px 10px; border-radius: 100px; letter-spacing: 0.05em;
+  }
+  .pill.hot {
+    color: rgba(200,100,30,0.85);
+    border-color: rgba(200,100,30,0.28);
+    background: rgba(200,80,10,0.12);
+  }
+
+  /* Vertical divider */
+  .divider {
+    position: absolute; top: 0; bottom: 0; right: 355px;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(200,80,10,0.22) 30%, rgba(200,80,10,0.22) 70%, transparent);
+    z-index: 6;
+  }
+
+  .badge {
+    position: absolute; bottom: 28px; right: 30px;
+    font-family: 'Space Mono', monospace; font-size: 10px;
+    color: rgba(242,234,216,0.28); letter-spacing: 0.12em; z-index: 10;
+  }
+  .rfc-tag {
+    position: absolute; top: 28px; right: 30px;
+    font-family: 'Space Mono', monospace; font-size: 10px;
+    color: rgba(200,80,10,0.6); letter-spacing: 0.15em; z-index: 10;
+  }
+
+  /* ── Save button ──────────────────────────────────────── */
+  .controls { display: flex; gap: 12px; align-items: center; }
+
+  button {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px; font-weight: 600;
+    padding: 13px 28px; border: none; border-radius: 8px;
+    cursor: pointer; transition: all 0.2s;
+    background: #c8580a; color: white;
+  }
+  button:hover { background: #a84608; transform: translateY(-1px); }
+
+  .note {
+    font-family: 'Space Mono', monospace; font-size: 11px;
+    color: rgba(255,255,255,0.28); text-align: center;
+  }
+
+  /* Utility classes replacing inline styles */
+  .cover-svg { position: absolute; inset: 0; z-index: 3; }
+  .content-left { z-index: 10; }
+</style>
+</head>
+<body>
+
+<div id="cover">
+
+  <!-- Full-cover SVG: background, glow, FIX 2 steam, divider, teapot -->
+  <!-- Everything in one SVG = html2canvas captures it all perfectly -->
+  <svg width="1000" height="420" viewBox="0 0 1000 420"
+       class="cover-svg" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- Background radial glow -->
+      <radialGradient id="bgGlow" cx="80%" cy="55%" r="55%">
+        <stop offset="0%"   stop-color="#c8500a" stop-opacity="0.20"/>
+        <stop offset="100%" stop-color="#c8500a" stop-opacity="0"/>
+      </radialGradient>
+
+      <!-- FIX 1: "418" gradient (pure SVG, no webkit clip) -->
+      <linearGradient id="numGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%"   stop-color="#c8580a"/>
+        <stop offset="38%"  stop-color="#e8a030"/>
+        <stop offset="68%"  stop-color="#f2ead8"/>
+        <stop offset="100%" stop-color="#c8a060"/>
+      </linearGradient>
+
+      <!-- Glow filter for "418" -->
+      <filter id="numGlow" x="-10%" y="-10%" width="120%" height="130%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="12" result="blur"/>
+        <feFlood flood-color="#c8580a" flood-opacity="0.35" result="color"/>
+        <feComposite in="color" in2="blur" operator="in" result="glow"/>
+        <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+
+      <!-- FIX 3: Steam blur filter -->
+      <filter id="steamBlur" x="-50%" y="-20%" width="200%" height="140%">
+        <feGaussianBlur stdDeviation="7"/>
+      </filter>
+      <filter id="steamBlurSoft" x="-50%" y="-20%" width="200%" height="140%">
+        <feGaussianBlur stdDeviation="10"/>
+      </filter>
+
+      <!-- Teapot gradients -->
+      <linearGradient id="bodyG" x1="50" y1="60" x2="160" y2="170" gradientUnits="userSpaceOnUse">
+        <stop offset="0%"   stop-color="#8B3A0A"/>
+        <stop offset="40%"  stop-color="#D06010"/>
+        <stop offset="100%" stop-color="#5A2005"/>
+      </linearGradient>
+      <linearGradient id="handleG" x1="10" y1="70" x2="48" y2="138" gradientUnits="userSpaceOnUse">
+        <stop offset="0%"   stop-color="#A84608"/>
+        <stop offset="100%" stop-color="#7A3006"/>
+      </linearGradient>
+      <linearGradient id="spoutG" x1="160" y1="58" x2="196" y2="65" gradientUnits="userSpaceOnUse">
+        <stop offset="0%"   stop-color="#C8580A"/>
+        <stop offset="100%" stop-color="#E8702A"/>
+      </linearGradient>
+      <linearGradient id="lidG" x1="72" y1="57" x2="144" y2="57" gradientUnits="userSpaceOnUse">
+        <stop offset="0%"   stop-color="#7A3006"/>
+        <stop offset="50%"  stop-color="#C8580A"/>
+        <stop offset="100%" stop-color="#7A3006"/>
+      </linearGradient>
+      <linearGradient id="lidTopG" x1="80" y1="42" x2="136" y2="62" gradientUnits="userSpaceOnUse">
+        <stop offset="0%"   stop-color="#E87030"/>
+        <stop offset="100%" stop-color="#A84608"/>
+      </linearGradient>
+      <linearGradient id="knobG" x1="98" y1="33" x2="118" y2="47" gradientUnits="userSpaceOnUse">
+        <stop offset="0%"   stop-color="#F09040"/>
+        <stop offset="100%" stop-color="#C86020"/>
+      </linearGradient>
+      <linearGradient id="rimG" x1="34" y1="58" x2="182" y2="58" gradientUnits="userSpaceOnUse">
+        <stop offset="0%"   stop-color="#5A2005" stop-opacity="0.8"/>
+        <stop offset="30%"  stop-color="#E87030" stop-opacity="0.9"/>
+        <stop offset="70%"  stop-color="#E87030" stop-opacity="0.9"/>
+        <stop offset="100%" stop-color="#5A2005" stop-opacity="0.8"/>
+      </linearGradient>
+      <radialGradient id="potGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="#c8500a" stop-opacity="0.25"/>
+        <stop offset="100%" stop-color="#c8500a" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+
+    <!-- Background -->
+    <rect width="1000" height="420" fill="#0d0608"/>
+    <rect width="1000" height="420" fill="url(#bgGlow)"/>
+
+    <!-- Divider line -->
+    <line x1="645" y1="0" x2="645" y2="420"
+          stroke="rgba(200,80,10,0.22)"
+          stroke-width="1"
+          stroke-dasharray="0"
+          opacity="0.8"/>
+
+    <!--
+      Teapot transform: translate(660,100) scale(1.2)
+      Lid knob tip in viewbox: (108, 33) → SVG: (660+108×1.2, 100+33×1.2) = (790, 140)
+      Spout tip in viewbox:    (186, 65) → SVG: (660+186×1.2, 100+65×1.2) = (883, 178)
+    -->
+
+    <!--
+      Knob top: translate(648,92) scale(1.18) → (106,30) = (648+106×1.18, 92+30×1.18) = (773, 127)
+      Spout tip: (216,52) → (903, 153)
+    -->
+
+    <!-- Steam rising from knob (origin ≈ 773, 125) -->
+    <g opacity="0.95">
+      <ellipse cx="773" cy="112" rx="6"  ry="20" fill="rgba(210,120,20,0.72)" filter="url(#steamBlur)"/>
+      <ellipse cx="784" cy="90"  rx="8"  ry="26" fill="rgba(235,185,60,0.55)" filter="url(#steamBlur)"/>
+      <ellipse cx="768" cy="68"  rx="11" ry="22" fill="rgba(242,234,216,0.42)" filter="url(#steamBlurSoft)"/>
+      <ellipse cx="780" cy="46"  rx="14" ry="18" fill="rgba(242,234,216,0.26)" filter="url(#steamBlurSoft)"/>
+      <ellipse cx="772" cy="26"  rx="17" ry="14" fill="rgba(242,234,216,0.13)" filter="url(#steamBlurSoft)"/>
+    </g>
+
+    <!-- Tea pour from spout tip (≈ 903, 153) curving down -->
+    <g opacity="0.85">
+      <path d="M 904 158 C 916 180, 922 210, 928 242 C 932 266, 930 288, 934 312"
+            stroke="rgba(140,60,8,0.82)" stroke-width="4.5"
+            stroke-linecap="round" fill="none" filter="url(#steamBlur)"/>
+      <path d="M 904 158 C 916 180, 922 210, 928 242 C 932 266, 930 288, 934 312"
+            stroke="rgba(200,110,25,0.30)" stroke-width="10"
+            stroke-linecap="round" fill="none" filter="url(#steamBlurSoft)"/>
+      <!-- Splash drops -->
+      <circle cx="933" cy="318" r="3.5" fill="rgba(160,70,10,0.55)" filter="url(#steamBlur)"/>
+      <circle cx="926" cy="325" r="2.5" fill="rgba(160,70,10,0.38)" filter="url(#steamBlur)"/>
+      <circle cx="939" cy="322" r="2"   fill="rgba(160,70,10,0.32)" filter="url(#steamBlur)"/>
+    </g>
+
+    <!-- Ambient glow behind teapot -->
+    <ellipse cx="810" cy="220" rx="210" ry="175" fill="url(#potGlow)"/>
+
+    <!--
+      Custom teapot — spout RIGHT, handle LEFT
+      ViewBox 230×195, translate(648, 92) scale(1.18)
+      Knob top: (106,30) → (773, 127)
+      Spout tip: (216,52) → (903, 153)
+    -->
+    <g transform="translate(648, 92) scale(1.18)">
+
+      <!-- 1. Handle — behind body, C-curve left side -->
+      <path d="M 40 90 C 6 90, 2 112, 4 124 C 6 140, 18 146, 40 142"
+            stroke="#6A2A04" stroke-width="14" stroke-linecap="round" fill="none"/>
+      <path d="M 40 90 C 6 90, 2 112, 4 124 C 6 140, 18 146, 40 142"
+            stroke="url(#handleG)" stroke-width="9" stroke-linecap="round" fill="none"/>
+
+      <!-- 2. Spout — filled tapered shape, drawn BEFORE body so body edge covers joint -->
+      <!--
+        Base top:  (160, 92)  Base bottom: (162, 120)
+        Tip top:   (216, 52)  Tip bottom:  (220, 60)
+        Shape widens slightly at base, tapers to the opening
+      -->
+      <path d="M 157 90
+               C 175 72, 200 56, 216 50
+               C 221 47, 225 50, 223 57
+               C 221 63, 215 64, 211 67
+               C 197 76, 176 94, 167 122
+               C 163 128, 157 124, 157 112
+               Z"
+            fill="url(#bodyG)"/>
+      <!-- Spout shadow/depth on outer edge -->
+      <path d="M 157 90
+               C 175 72, 200 56, 216 50"
+            stroke="rgba(80,20,0,0.4)" stroke-width="3"
+            stroke-linecap="round" fill="none"/>
+      <!-- Spout highlight -->
+      <path d="M 162 96
+               C 178 80, 200 63, 214 55"
+            stroke="rgba(255,180,70,0.14)" stroke-width="4"
+            stroke-linecap="round" fill="none"/>
+
+      <!-- 3. Body — oval, covers spout base -->
+      <path d="M 76 64
+               C 50 68, 36 88, 36 114
+               C 36 140, 54 160, 106 162
+               C 158 160, 176 140, 176 114
+               C 176 88, 162 68, 136 64 Z"
+            fill="url(#bodyG)"/>
+
+      <!-- Body highlight (upper-left shoulder) -->
+      <ellipse cx="80" cy="94" rx="22" ry="14"
+               fill="rgba(255,255,255,0.07)" transform="rotate(-22,80,94)"/>
+      <!-- Small shine dot -->
+      <circle cx="74" cy="90" r="7"   fill="rgba(255,255,255,0.07)"/>
+      <circle cx="70" cy="86" r="2.5" fill="rgba(255,255,255,0.20)"/>
+
+      <!-- 4. Foot ring -->
+      <ellipse cx="106" cy="162" rx="46" ry="9" fill="#5A1E04" opacity="0.85"/>
+      <ellipse cx="106" cy="160" rx="44" ry="7" fill="url(#rimG)" opacity="0.5"/>
+
+      <!-- 5. Lid rim (sits in body opening) -->
+      <ellipse cx="106" cy="66" rx="34" ry="9" fill="url(#lidG)"/>
+
+      <!-- 6. Lid dome -->
+      <path d="M 74 66 C 74 46, 138 46, 138 66 Z"
+            fill="url(#lidTopG)"/>
+      <!-- Lid edge highlight -->
+      <path d="M 74 66 C 74 50, 138 50, 138 66"
+            stroke="rgba(255,160,60,0.12)" stroke-width="1.5" fill="none"/>
+
+      <!-- 7. Lid knob -->
+      <circle cx="106" cy="38" r="11" fill="url(#knobG)"/>
+      <ellipse cx="102" cy="34" rx="4" ry="3" fill="rgba(255,255,255,0.22)"/>
+
+    </g>
+
+    <!-- Ambient glow behind teapot -->
+    <ellipse cx="800" cy="210" rx="180" ry="160" fill="url(#potGlow)"/>
+
+    <!-- RFC tag -->
+    <text x="970" y="44" text-anchor="end"
+          font-family="Space Mono, monospace" font-size="10"
+          fill="rgba(200,80,10,0.6)" letter-spacing="2">RFC 2324 COMPLIANT</text>
+
+    <!-- Bottom badge -->
+    <text x="970" y="396" text-anchor="end"
+          font-family="Space Mono, monospace" font-size="10"
+          fill="rgba(242,234,216,0.28)" letter-spacing="1.5">Built on a road trip · Ostsee → Halle (Saale)</text>
+
+  </svg>
+
+  <!-- Animated CSS steam on top (preview only) -->
+  <div class="steam-animated" aria-hidden="true">
+    <div class="steam s1"></div>
+    <div class="steam s2"></div>
+    <div class="steam s3"></div>
+    <div class="steam s4"></div>
+    <div class="steam s5"></div>
+  </div>
+
+  <!-- Left text content (HTML for editable fields) -->
+  <div class="content content-left">
+
+    <div class="label">HTTP Status Code</div>
+
+    <!-- FIX 1: "418" as inline SVG — renders perfectly in html2canvas -->
+    <svg class="code-svg" width="380" height="138" viewBox="0 0 380 138" overflow="visible">
+      <defs>
+        <linearGradient id="n2" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stop-color="#c8580a"/>
+          <stop offset="38%"  stop-color="#e8a030"/>
+          <stop offset="68%"  stop-color="#f2ead8"/>
+          <stop offset="100%" stop-color="#c8a060"/>
+        </linearGradient>
+        <filter id="g2" x="-5%" y="-5%" width="115%" height="125%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="b"/>
+          <feFlood flood-color="#c8580a" flood-opacity="0.3" result="c"/>
+          <feComposite in="c" in2="b" operator="in" result="glow"/>
+          <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <text x="0" y="128"
+            font-family="Space Grotesk, sans-serif"
+            font-size="138" font-weight="800"
+            letter-spacing="-5"
+            fill="url(#n2)"
+            filter="url(#g2)">418</text>
+    </svg>
+
+    <div class="tagline">I'm a <span>Teapot</span></div>
+
+    <div class="pills">
+      <span class="pill hot">RFC 2324</span>
+      <span class="pill">React 18</span>
+      <span class="pill">TypeScript</span>
+      <span class="pill">No Coffee</span>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Controls -->
+<div class="controls">
+  <button type="button" onclick="savePNG()">⬇ Save PNG (2000 × 840 · @2x)</button>
+</div>
+<div class="note">Dev.to cover · 1000 × 420 display · 2x retina export</div>
+
+<script>
+  function savePNG() {
+    // Hide animated CSS steam before capture (it's unpredictable mid-animation)
+    const animated = document.querySelector('.steam-animated');
+    animated.style.display = 'none';
+
+    html2canvas(document.getElementById('cover'), {
+      width:  1000,
+      height: 420,
+      scale:  2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#0d0608',
+      logging: false,
+      onclone: (doc) => {
+        // Ensure fonts load in clone
+        doc.querySelector('.steam-animated').style.display = 'none';
+      }
+    }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = 'http-418-cover.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      animated.style.display = '';
+    });
+  }
+</script>
+</body>
+</html>

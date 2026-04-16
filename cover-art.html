@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<!--
+  THERMAL INFUSION — An Algorithmic Ode to HTTP 418
+
+  Philosophy: Steam particles rise through thermal gradients,
+  tracing the invisible soul of RFC 2324. The teapot is not drawn —
+  it emerges through the accumulated memory of 2,500 rising lives.
+
+  Seed 418. Always seed 418.
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermal Infusion — HTTP 418</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --anthropic-dark: #141413;
+            --anthropic-light: #faf9f5;
+            --anthropic-mid-gray: #b0aea5;
+            --anthropic-light-gray: #e8e6dc;
+            --anthropic-orange: #d97757;
+            --anthropic-blue: #6a9bcc;
+            --anthropic-green: #788c5d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--anthropic-light) 0%, #f5f3ee 100%);
+            min-height: 100vh;
+            color: var(--anthropic-dark);
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .sidebar {
+            width: 300px;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(20, 20, 19, 0.1);
+            overflow-y: auto;
+        }
+
+        .sidebar h1 {
+            font-family: 'Lora', serif;
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--anthropic-dark);
+            margin-bottom: 6px;
+        }
+
+        .sidebar .subtitle {
+            color: var(--anthropic-mid-gray);
+            font-size: 12px;
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        .control-section { margin-bottom: 28px; }
+
+        .control-section h3 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--anthropic-dark);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .control-section h3::before {
+            content: '•';
+            color: var(--anthropic-orange);
+        }
+
+        .seed-input {
+            width: 100%;
+            background: var(--anthropic-light);
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin-bottom: 10px;
+            border: 1px solid var(--anthropic-light-gray);
+            text-align: center;
+        }
+
+        .seed-input:focus {
+            outline: none;
+            border-color: var(--anthropic-orange);
+            background: white;
+        }
+
+        .seed-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .control-group { margin-bottom: 16px; }
+
+        .control-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--anthropic-dark);
+            margin-bottom: 6px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider-container input[type="range"] {
+            flex: 1;
+            height: 4px;
+            background: var(--anthropic-light-gray);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--anthropic-orange);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .value-display {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: var(--anthropic-mid-gray);
+            min-width: 40px;
+            text-align: right;
+        }
+
+        .color-group { margin-bottom: 12px; }
+
+        .color-group label {
+            display: block;
+            font-size: 11px;
+            color: var(--anthropic-mid-gray);
+            margin-bottom: 4px;
+        }
+
+        .color-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-picker-container input[type="color"] {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: none;
+            padding: 0;
+        }
+
+        .color-value {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: var(--anthropic-mid-gray);
+        }
+
+        .button {
+            background: var(--anthropic-orange);
+            color: white;
+            border: none;
+            padding: 9px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .button:hover { background: #c86641; transform: translateY(-1px); }
+        .button:active { transform: translateY(0); }
+        .button.secondary { background: var(--anthropic-blue); }
+        .button.secondary:hover { background: #5a8bb8; }
+        .button.tertiary { background: var(--anthropic-green); }
+        .button.tertiary:hover { background: #6b7b52; }
+
+        .button-row { display: flex; gap: 8px; }
+        .button-row .button { flex: 1; }
+
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+        }
+
+        #canvas-container {
+            width: 100%;
+            max-width: 1200px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(20, 20, 19, 0.25);
+        }
+
+        #canvas-container canvas {
+            display: block;
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        .loading {
+            padding: 80px 40px;
+            text-align: center;
+            color: var(--anthropic-mid-gray);
+            font-size: 16px;
+        }
+
+        .status-bar {
+            margin-top: 12px;
+            font-size: 11px;
+            color: var(--anthropic-mid-gray);
+            text-align: center;
+            font-family: 'Courier New', monospace;
+        }
+
+        @media (max-width: 700px) {
+            .container { flex-direction: column; }
+            .sidebar { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1>Thermal Infusion</h1>
+            <div class="subtitle">
+                Steam particles rise through thermal gradients.<br>
+                An algorithmic ode to RFC 2324 and HTTP 418.
+            </div>
+
+            <!-- Seed -->
+            <div class="control-section">
+                <h3>Seed</h3>
+                <input type="number" id="seed-input" class="seed-input" value="418" onchange="updateSeed()">
+                <div class="seed-controls">
+                    <button class="button secondary" onclick="previousSeed()">← Prev</button>
+                    <button class="button secondary" onclick="nextSeed()">Next →</button>
+                </div>
+                <button class="button tertiary" onclick="randomSeedAndUpdate()">↻ Random</button>
+            </div>
+
+            <!-- Parameters -->
+            <div class="control-section">
+                <h3>Parameters</h3>
+
+                <div class="control-group">
+                    <label>Steam Density</label>
+                    <div class="slider-container">
+                        <input type="range" id="particleCount" min="500" max="6000" step="500" value="2500"
+                               oninput="updateParam('particleCount', this.value)">
+                        <span class="value-display" id="particleCount-value">2500</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Rise Strength</label>
+                    <div class="slider-container">
+                        <input type="range" id="riseStrength" min="0.3" max="3.5" step="0.1" value="1.4"
+                               oninput="updateParam('riseStrength', this.value)">
+                        <span class="value-display" id="riseStrength-value">1.4</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Turbulence</label>
+                    <div class="slider-container">
+                        <input type="range" id="turbulence" min="0.1" max="2.5" step="0.1" value="0.9"
+                               oninput="updateParam('turbulence', this.value)">
+                        <span class="value-display" id="turbulence-value">0.9</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Noise Scale</label>
+                    <div class="slider-container">
+                        <input type="range" id="noiseScale" min="0.001" max="0.018" step="0.001" value="0.004"
+                               oninput="updateParam('noiseScale', this.value)">
+                        <span class="value-display" id="noiseScale-value">0.004</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Trail Fade</label>
+                    <div class="slider-container">
+                        <input type="range" id="trailFade" min="2" max="35" step="1" value="10"
+                               oninput="updateParam('trailFade', this.value)">
+                        <span class="value-display" id="trailFade-value">10</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Spout Bias</label>
+                    <div class="slider-container">
+                        <input type="range" id="spoutBias" min="0.0" max="1.0" step="0.05" value="0.5"
+                               oninput="updateParam('spoutBias', this.value)">
+                        <span class="value-display" id="spoutBias-value">0.5</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colors -->
+            <div class="control-section">
+                <h3>Colors</h3>
+
+                <div class="color-group">
+                    <label>Background</label>
+                    <div class="color-picker-container">
+                        <input type="color" id="bgColor" value="#0e0608"
+                               onchange="updateColor('bgColor', this.value)">
+                        <span class="color-value" id="bgColor-value">#0e0608</span>
+                    </div>
+                </div>
+
+                <div class="color-group">
+                    <label>Ember (hot)</label>
+                    <div class="color-picker-container">
+                        <input type="color" id="hotColor" value="#c8580a"
+                               onchange="updateColor('hotColor', this.value)">
+                        <span class="color-value" id="hotColor-value">#c8580a</span>
+                    </div>
+                </div>
+
+                <div class="color-group">
+                    <label>Glow (mid)</label>
+                    <div class="color-picker-container">
+                        <input type="color" id="midColor" value="#e8a030"
+                               onchange="updateColor('midColor', this.value)">
+                        <span class="color-value" id="midColor-value">#e8a030</span>
+                    </div>
+                </div>
+
+                <div class="color-group">
+                    <label>Steam (cool)</label>
+                    <div class="color-picker-container">
+                        <input type="color" id="coolColor" value="#f2ead8"
+                               onchange="updateColor('coolColor', this.value)">
+                        <span class="color-value" id="coolColor-value">#f2ead8</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="control-section">
+                <h3>Actions</h3>
+                <div class="button-row" style="margin-bottom:8px">
+                    <button class="button" onclick="resetParameters()">Reset</button>
+                    <button class="button secondary" onclick="savePNG()">Save PNG</button>
+                </div>
+                <button class="button tertiary" onclick="clearAndRestart()">Clear Canvas</button>
+            </div>
+
+            <div class="status-bar" id="status">seed: 418 · brewing...</div>
+        </div>
+
+        <div class="canvas-area">
+            <div id="canvas-container">
+                <div class="loading">🫖 Brewing thermal infusion...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════
+        // PARAMETERS — Thermal Infusion
+        // Encoded: 4 noise octaves · 1/8 scale · seed 418 = RFC 2324
+        // ═══════════════════════════════════════════════════════════
+        let params = {
+            seed:          418,
+            particleCount: 2500,
+            riseStrength:  1.4,
+            turbulence:    0.9,
+            noiseScale:    0.004,
+            trailFade:     10,
+            spoutBias:     0.5,
+            bgColor:       '#0e0608',
+            hotColor:      '#c8580a',
+            midColor:      '#e8a030',
+            coolColor:     '#f2ead8',
+        };
+
+        let defaultParams = { ...params };
+
+        // Runtime state
+        let particles  = [];
+        let pg;          // Persistent graphics layer (trail accumulation)
+        let timeStep   = 0;
+        let frameCount_ = 0;
+
+        // Canvas dimensions: 1200×630 — ideal Dev.to cover ratio
+        const W = 1200;
+        const H = 630;
+
+        // ── Teapot geometry (normalized → pixel coords) ──────────────
+        // Body ellipse center, semi-axes
+        const POT = {
+            cx:    W * 0.48,
+            cy:    H * 0.64,
+            rx:    W * 0.175,
+            ry:    H * 0.31,
+            // Spout tip (where steam exits)
+            spoutX: W * 0.74,
+            spoutY: H * 0.38,
+            // Lid center
+            lidX:   W * 0.48,
+            lidY:   H * 0.315,
+        };
+
+        // ── Color helpers ─────────────────────────────────────────────
+        function hexToRGB(hex) {
+            const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return r ? { r: parseInt(r[1],16), g: parseInt(r[2],16), b: parseInt(r[3],16) }
+                     : { r: 14, g: 6, b: 8 };
+        }
+
+        function lerpRGB(hexA, hexB, t) {
+            const a = hexToRGB(hexA), b = hexToRGB(hexB);
+            return {
+                r: Math.round(lerp(a.r, b.r, t)),
+                g: Math.round(lerp(a.g, b.g, t)),
+                b: Math.round(lerp(a.b, b.b, t)),
+            };
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // P5.JS SETUP
+        // ═══════════════════════════════════════════════════════════
+        function setup() {
+            const cnv = createCanvas(W, H);
+            cnv.parent('canvas-container');
+            document.querySelector('.loading').style.display = 'none';
+            initializeSystem();
+        }
+
+        function initializeSystem() {
+            randomSeed(params.seed);
+            noiseSeed(params.seed);
+            timeStep   = 0;
+            frameCount_ = 0;
+
+            // Persistent layer: trails accumulate here across frames
+            pg = createGraphics(W, H);
+            const bg = hexToRGB(params.bgColor);
+            pg.background(bg.r, bg.g, bg.b);
+
+            // Draw the ghost teapot — an almost-invisible presence
+            drawTeapotGhost(pg);
+
+            // Spawn particles with staggered birth ages
+            particles = [];
+            for (let i = 0; i < params.particleCount; i++) {
+                particles.push(new SteamParticle(random(0, 400)));
+            }
+
+            setStatus(`seed: ${params.seed} · ${params.particleCount} particles`);
+        }
+
+        // Draw a very faint, barely visible teapot silhouette.
+        // It will be slowly revealed and then buried under steam trails.
+        function drawTeapotGhost(g) {
+            g.push();
+            g.noFill();
+
+            // Body outline glow (several concentric ellipses, very dim)
+            for (let r = 1; r <= 3; r++) {
+                g.stroke(160, 80, 20, 18 - r * 4);
+                g.strokeWeight(r * 1.5);
+                g.ellipse(POT.cx, POT.cy, POT.rx * 2 * (1 + r * 0.015), POT.ry * 2 * (1 + r * 0.015));
+            }
+
+            // Spout curve — bezier from body right to spout tip
+            g.stroke(160, 80, 20, 14);
+            g.strokeWeight(1.5);
+            g.noFill();
+            g.beginShape();
+            for (let t = 0; t <= 1; t += 0.05) {
+                // Cubic bezier: body edge → control → spout tip
+                const bx = POT.cx + POT.rx;   // body right
+                const by = POT.cy - POT.ry * 0.15;
+                const c1x = bx + (POT.spoutX - bx) * 0.3;
+                const c1y = by - POT.ry * 0.4;
+                const c2x = bx + (POT.spoutX - bx) * 0.7;
+                const c2y = POT.spoutY + POT.ry * 0.15;
+                const sx = cubicBezier(bx, c1x, c2x, POT.spoutX, t);
+                const sy = cubicBezier(by, c1y, c2y, POT.spoutY, t);
+                g.vertex(sx, sy);
+            }
+            g.endShape();
+
+            // Lid (small arc on top)
+            g.stroke(160, 80, 20, 12);
+            g.strokeWeight(1.5);
+            g.arc(POT.lidX, POT.lidY, POT.rx * 0.55, POT.ry * 0.22, PI, TWO_PI);
+
+            // Handle (left side arc)
+            g.beginShape();
+            for (let t = 0; t <= 1; t += 0.06) {
+                const angle = lerp(-0.45 * PI, 0.45 * PI, t);
+                const hx = POT.cx - POT.rx - POT.rx * 0.18 * Math.cos(angle);
+                const hy = POT.cy + POT.ry * 0.08 * Math.sin(angle * 1.6);
+                g.vertex(hx, hy);
+            }
+            g.endShape();
+
+            g.pop();
+        }
+
+        // Simple cubic bezier helper (1D)
+        function cubicBezier(p0, p1, p2, p3, t) {
+            const mt = 1 - t;
+            return mt*mt*mt*p0 + 3*mt*mt*t*p1 + 3*mt*t*t*p2 + t*t*t*p3;
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // DRAW LOOP
+        // ═══════════════════════════════════════════════════════════
+        function draw() {
+            timeStep   += 0.0015;
+            frameCount_++;
+
+            // Fade the persistent layer toward background
+            const bg = hexToRGB(params.bgColor);
+            pg.fill(bg.r, bg.g, bg.b, params.trailFade);
+            pg.noStroke();
+            pg.rect(0, 0, W, H);
+
+            // Update & render all particles
+            for (let p of particles) {
+                p.update();
+                p.render(pg);
+                if (p.isDead()) p.reset(0);
+            }
+
+            // Blit accumulated trails to main canvas
+            image(pg, 0, 0);
+
+            // Subtle vignette
+            drawVignette();
+
+            if (frameCount_ % 60 === 0) {
+                setStatus(`seed: ${params.seed} · frame ${frameCount_} · brewing…`);
+            }
+        }
+
+        function drawVignette() {
+            const bg = hexToRGB(params.bgColor);
+            for (let r = W * 0.5; r > 0; r -= 12) {
+                const a = map(r, 0, W * 0.5, 0, 55);
+                noStroke();
+                fill(bg.r, bg.g, bg.b, a);
+                ellipse(W / 2, H / 2, r * 2, r * 1.05 * (H / W) * 2);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // STEAM PARTICLE
+        // Each particle is a short-lived breath of steam.
+        // Born at the teapot's hot zones, it rises through the
+        // flow field, changing color from amber ember to cool cream.
+        // ═══════════════════════════════════════════════════════════
+        class SteamParticle {
+            constructor(startAge = 0) {
+                this.reset(startAge);
+            }
+
+            reset(startAge = 0) {
+                // Choose birth zone based on spout bias
+                const roll = random();
+                const sb   = params.spoutBias;
+
+                if (roll < sb * 0.7) {
+                    // Spout tip — primary steam source
+                    this.x = POT.spoutX + random(-18, 22);
+                    this.y = POT.spoutY + random(-12, 10);
+                } else if (roll < sb * 0.7 + 0.2) {
+                    // Lid — secondary source
+                    this.x = POT.lidX + random(-POT.rx * 0.25, POT.rx * 0.25);
+                    this.y = POT.lidY + random(-8, 8);
+                } else {
+                    // Scattered emission from top 30% of body surface
+                    const a = random(-PI * 0.85, -PI * 0.15);
+                    const fr = random(0.75, 1.05);
+                    this.x = POT.cx + cos(a) * POT.rx * fr;
+                    this.y = POT.cy + sin(a) * POT.ry * fr * 0.6;
+                }
+
+                this.vx      = 0;
+                this.vy      = 0;
+                this.age     = startAge;
+                this.maxAge  = random(160, 480);
+                this.size    = random(0.7, 2.2);
+                // Unique noise offset per particle: breaks up uniformity
+                this.noiseOx = random(0, 1000);
+                this.noiseOy = random(0, 1000);
+            }
+
+            update() {
+                this.age++;
+                const life = this.age / this.maxAge;
+
+                // ── Flow field ───────────────────────────────────────
+                // 4 octaves of Perlin noise (4 = the 4 in 418)
+                // at 1/8 base scale harmonic (8 = the 8 in 418)
+                const ns  = params.noiseScale;
+                const nx  = this.x * ns + this.noiseOx;
+                const ny  = this.y * ns + this.noiseOy + timeStep;
+
+                // Multi-octave noise angle
+                let angle = 0;
+                angle += noise(nx,         ny        ) * TWO_PI * 2.0;
+                angle += noise(nx * 2,     ny * 2    ) * PI     * 0.8;
+                angle += noise(nx * 4,     ny * 4    ) * PI     * 0.3;
+                angle += noise(nx * 0.125, ny * 0.125) * PI     * 0.6; // 1/8 scale
+
+                // Turbulent horizontal, reduced vertical noise
+                const tx = cos(angle) * params.turbulence;
+                const ty = sin(angle) * params.turbulence * 0.45;
+
+                // Thermal rise: stronger near source, weakens as steam cools
+                const coolFactor = 1 - life * 0.5;
+                const rise = params.riseStrength * coolFactor;
+
+                // Gentle convergence toward canvas center-x (columns merge)
+                const toCenter = (W * 0.5 - this.x) * 0.0012;
+
+                // Soft drift toward spout stream above
+                const toSpout = (POT.spoutX - this.x) * params.spoutBias * 0.0008;
+
+                this.vx = lerp(this.vx, tx + toCenter + toSpout, 0.12);
+                this.vy = lerp(this.vy, ty - rise,                0.12);
+
+                this.x += this.vx;
+                this.y += this.vy;
+            }
+
+            render(g) {
+                const life = this.age / this.maxAge;
+
+                // ── Color ────────────────────────────────────────────
+                // hot ember → golden glow → cool steam cream
+                let c;
+                if (life < 0.25) {
+                    c = lerpRGB(params.hotColor, params.midColor, life / 0.25);
+                } else if (life < 0.6) {
+                    c = lerpRGB(params.midColor, params.coolColor, (life - 0.25) / 0.35);
+                } else {
+                    c = hexToRGB(params.coolColor);
+                }
+
+                // ── Alpha ────────────────────────────────────────────
+                let alpha;
+                if (life < 0.08) {
+                    alpha = map(life, 0, 0.08, 0, 200);
+                } else if (life > 0.72) {
+                    alpha = map(life, 0.72, 1.0, 200, 0);
+                } else {
+                    alpha = 200;
+                }
+
+                // ── Size ─────────────────────────────────────────────
+                // Steam expands as it cools and rises
+                const sz = this.size * (0.4 + life * 3.2);
+
+                g.noStroke();
+                g.fill(c.r, c.g, c.b, alpha);
+                g.circle(this.x, this.y, sz);
+
+                // Inner glow for hot particles (ember core)
+                if (life < 0.35) {
+                    const glowA = alpha * (1 - life / 0.35) * 0.12;
+                    g.fill(c.r, c.g, c.b, glowA);
+                    g.circle(this.x, this.y, sz * 4.5);
+                }
+            }
+
+            isDead() {
+                return this.age >= this.maxAge
+                    || this.x < -60
+                    || this.x > W + 60
+                    || this.y < -100
+                    || this.y > H + 40;
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // UI HANDLERS
+        // ═══════════════════════════════════════════════════════════
+        function updateParam(name, value) {
+            const isInt = name === 'particleCount' || name === 'trailFade';
+            params[name] = isInt ? parseInt(value) : parseFloat(value);
+            document.getElementById(name + '-value').textContent = value;
+
+            if (name === 'particleCount') {
+                // Rebuild particle pool without resetting the canvas
+                particles = [];
+                for (let i = 0; i < params.particleCount; i++) {
+                    particles.push(new SteamParticle(random(0, 400)));
+                }
+            }
+        }
+
+        function updateColor(id, value) {
+            params[id] = value;
+            document.getElementById(id + '-value').textContent = value;
+            if (id === 'bgColor') initializeSystem(); // need full reinit for bg
+        }
+
+        function clearAndRestart() {
+            initializeSystem();
+        }
+
+        function savePNG() {
+            // Render current pg state to main canvas then save
+            image(pg, 0, 0);
+            saveCanvas('http-418-thermal-infusion', 'png');
+        }
+
+        function setStatus(msg) {
+            const el = document.getElementById('status');
+            if (el) el.textContent = msg;
+        }
+
+        // ── Seed controls ─────────────────────────────────────────
+        function updateSeedDisplay() {
+            document.getElementById('seed-input').value = params.seed;
+        }
+
+        function updateSeed() {
+            const v = parseInt(document.getElementById('seed-input').value);
+            if (v && v > 0) { params.seed = v; initializeSystem(); }
+            else updateSeedDisplay();
+        }
+
+        function previousSeed() {
+            params.seed = Math.max(1, params.seed - 1);
+            updateSeedDisplay(); initializeSystem();
+        }
+
+        function nextSeed() {
+            params.seed++;
+            updateSeedDisplay(); initializeSystem();
+        }
+
+        function randomSeedAndUpdate() {
+            params.seed = Math.floor(Math.random() * 999999) + 1;
+            updateSeedDisplay(); initializeSystem();
+        }
+
+        function resetParameters() {
+            params = { ...defaultParams };
+
+            // Sync all sliders
+            ['particleCount','riseStrength','turbulence','noiseScale','trailFade','spoutBias'].forEach(k => {
+                const el = document.getElementById(k);
+                if (el) { el.value = params[k]; document.getElementById(k+'-value').textContent = params[k]; }
+            });
+            // Sync colors
+            ['bgColor','hotColor','midColor','coolColor'].forEach(k => {
+                const el = document.getElementById(k);
+                if (el) { el.value = params[k]; document.getElementById(k+'-value').textContent = params[k]; }
+            });
+
+            updateSeedDisplay();
+            initializeSystem();
+        }
+
+        window.addEventListener('load', updateSeedDisplay);
+    </script>
+</body>
+</html>
