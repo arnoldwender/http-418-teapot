@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { TEA_MENU } from './data/teapot-content';
 import type { HttpStatusTea } from './data/teapot-content';
 import { useGlitchTitle } from './hooks/useGlitchTitle';
@@ -320,6 +319,11 @@ export default function App() {
           <div>IN MEMORY OF RFC 2324 (APRIL 1, 1998) — THE GREATEST APRIL FOOLS JOKE IN INTERNET HISTORY</div>
           <div>LARRY MASINTER: THANK YOU FOR THIS GIFT TO HUMANITY</div>
           <div className="teapot-footer__credit">BUILT BY ARNOLD WENDER — WE REFUSE COFFEE TOO</div>
+          {/* Legal links must stay readable, unlike the ghost-amber joke lines above (DDG § 5) */}
+          <nav className="teapot-footer__legal" aria-label="Rechtliches">
+            <a href="/impressum/">Impressum</a>
+            <a href="/datenschutz/">Datenschutz</a>
+          </nav>
         </footer>
       </main>
     </div>
