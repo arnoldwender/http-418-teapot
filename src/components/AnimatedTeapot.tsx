@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import type { TeapotReaction } from '../hooks/useBrewProcess';
 
 /* === Animated teapot — CSS + framer-motion, reacts to interactions === */
@@ -42,7 +42,7 @@ function SteamParticle({ delay, x }: { delay: number; x: number }) {
 }
 
 /* Rotation variants for different teapot states */
-const teapotVariants = {
+const teapotVariants: Variants = {
   idle: {
     rotate: 0,
     scale: 1,
